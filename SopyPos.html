@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Forma Canónica SOP/POS</title>
+<link rel="stylesheet" href="estilos.css">
+<script src="script.js"></script>
+</head>
+<body>
+<div class="container">
+    <h2>Forma Canónica Estándar SOP/POS</h2>
+    
+    <div class="info-box">
+        <strong>Instrucciones:</strong> Ingresa una expresión para obtener sus formas canónicas SOP (Suma de Productos) y POS (Producto de Sumas)
+    </div>
+
+    <div class="input-group">
+        <label>Ingrese la expresión booleana:</label>
+        <input id="expresion" placeholder="Ej: A¬B+C(D+¬A)" oninput="validarInput(this)" style="font-size: 18px; padding: 16px; min-height: 50px;">
+    </div>
+
+    <div class="button-group">
+        <button class="secondary" onclick="insertarNegacion('expresion')">Insertar ¬</button>
+        <button class="primary" onclick="procesarPagina4()">Procesar</button>
+        <button class="danger" onclick="limpiarFormulario('expresion', 'resultado')">Limpiar</button>
+    </div>
+
+    <div id="errorMsg"></div>
+    
+    <h3>Tabla de Verdad:</h3>
+    <div id="tablita"></div>
+
+    <h3>Formas Canónicas:</h3>
+    <div id="resultado"></div>
+</div>
+
+<script>
+function procesarPagina4(){
+    const exp=document.getElementById("expresion").value.trim();
+    const errorDiv = document.getElementById("errorMsg");
+    errorDiv.innerHTML = "";
+
+    if(!exp) {
+        errorDiv.innerHTML = '<div class="error">❌ Por favor ingrese una expresión</div>';
+        return;
+    }
+
+    if(!validarExpresion(exp)) {
+        errorDiv.innerHTML = '<div class="error">❌ Expresión no válida. Revise paréntesis y operadores</div>';
+        return;
+    }
+
+    try {
+        const vars=detectarVars(exp);
+        if(vars.length === 0) {
+            errorDiv.innerHTML = '<div class="error">❌ Debe incluir al menos una variable (A, B, C, D)</div>';
+            return;
+        }
+
+        const resultados=evaluarExpresion(exp, vars);
+        const minExp=obtenerMinterms(resultados, vars);
+        const maxExp=obtenerMaxterms(resultados, vars);
+        
+        // Mostrar tabla de verdad
+        document.getElementById("tablita").innerHTML = generarTablaVerdad(exp, vars);
+        
+        document.getElementById("resultado").innerHTML=`
+            <div class="result-row">
+                <span class="result-label">SOP (Suma de Productos) Canónica:</span>
+                <span class="result-value">${minExp}</span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">POS (Producto de Sumas) Canónica:</span>
+                <span class="result-value">${maxExp}</span>
+            </div>
+        `;
+    } catch(e) {
+        errorDiv.innerHTML = '<div class="error">❌ Error al procesar la expresión: ' + e.message + '</div>';
+    }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú Principal de Lógica Digital</title>
+    <link rel="stylesheet" href="style.css"> 
+    <style>
+        /* Estilos específicos para el menú */
+        .contenedor {
+            
+            max-width: 600px;
+            
+        }
+        .menu-lista {
+            list-style: none;
+            padding: 0;
+        }
+        .menu-lista li {
+            margin-bottom: 15px;
+        }
+        .menu-lista a {
+            display: block;
+            background-color: #0660c1; /* Color del botón principal */
+            color: white;
+            padding: 15px 20px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease, transform 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 123, 255, 0.2);
+            text-align: center;
+        }
+        .menu-lista a:hover {
+            background-color: #033f80; /* Color al pasar el ratón */
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="contenedor">
+        <h1>🛠️ Herramientas Para Fundamentos Digitales INF - 112</h1>
+        <p>Seleccione la operación que desea realizar:</p>
+        
+        <ul class="menu-lista">
+            <li>
+                <a href="conversordebase.html">1. Conversor de Base </a>
+            </li>
+            <li>
+                <a href="operacionesdebases.html">2. Operaciones de Bases (Suma, Resta, Multiplicacion, Division en bases distintas)</a>
+            </li>
+            <li>
+                <a href="simplificacion por algebra de boole.html">3. Simplificacion por el Algebra de boole </a>
+            </li>
+            <li>
+                <a href="expresion desde tabla.html">4. Obtener Expresión desde Tabla de Verdad</a>
+            </li>
+            <li>
+                <a href="MinMax.html">5. Obtener Min-Term y Max-Term</a>
+            </li>
+            <li>
+                <a href="SopyPos.html">6. Obtener Forma Canónica Estándar (SOP y POS)</a>
+            </li>
+        </ul>
+        
+    </div>
+</body>
+</html>

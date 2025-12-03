@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Conversor de Bases Numéricas Personalizado</title>
+    <style>
+        /* ==================== */
+        /* === ESTILOS CSS === */
+        /* ==================== */
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f8;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .contenedor {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            font-size: 1em;
+            color: #555;
+        }
+
+        /* Estilos para el grupo de entrada y selector */
+        .grupo-entrada {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start; 
+            margin-bottom: 20px;
+        }
+
+        .grupo-entrada label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        
+        input[type="text"], select {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 10px; 
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            font-size: 1.1em;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+
+        input[type="text"]:focus, select:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+
+        .botones-conversion {
+            display: flex;
+            justify-content: space-between; /* Usamos space-between para más espacio */
+            margin-bottom: 30px;
+            flex-wrap: wrap; /* Permite que los botones bajen de línea si no caben */
+            gap: 10px; /* Espacio entre los botones */
+        }
+        
+        .botones-conversion button {
+            flex-grow: 1; /* Permite que crezcan para ocupar el espacio */
+            min-width: 100px; /* Ancho mínimo para que no se vean demasiado pequeños */
+        }
+
+        button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        /* Estilos específicos para cada botón de salida */
+        /* Binario */
+        .botones-conversion button:nth-child(1) { background-color: #2ecc71; color: white; }
+        /* Octal */
+        .botones-conversion button:nth-child(2) { background-color: #f39c12; color: white; }
+        /* Decimal */
+        .botones-conversion button:nth-child(3) { background-color: #3498db; color: white; }
+        /* Hexadecimal */
+        .botones-conversion button:nth-child(4) { background-color: #e74c3c; color: white; }
+
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        #resultado {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #ecf0f1;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #2c3e50;
+            border-left: 5px solid #3498db;
+            text-align: left;
+        }
+
+        /* Estilo para el mensaje de error */
+        .error {
+            border-left: 5px solid #e74c3c !important;
+            color: #e74c3c !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor">
+        <h1>🔄 Conversor de Bases Numéricas</h1>
+
+        <div class="grupo-entrada">
+            <label for="baseInput">1. Base del número que se convertira (2 a 16):</label>
+            <select id="baseInput">
+                </select>
+        </div>
+        
+        <div class="grupo-entrada">
+            <label for="numeroInput">2. Ingresa el Número:</label>
+            <input type="text" id="numeroInput" placeholder="Ej: 10110 (Base 2), 377 (Base 8), FF (Base 16)">
+        </div>
+
+
+        <p>3. Convertir a:</p>
+        <div class="botones-conversion">
+            <button onclick="convertir(2)">Binario (Base 2)</button>
+            <button onclick="convertir(8)">Octal (Base 8)</button>
+            <button onclick="convertir(10)">Decimal (Base 10)</button>
+            <button onclick="convertir(16)">Hexadecimal (Base 16)</button>
+        </div>
+
+        <div id="resultado">Esperando conversión...</div>
+    </div>
+
+    <script>
+        // Función para poblar el selector de Base de Entrada (del 2 al 16)
+        function poblarBases() {
+            const selector = document.getElementById('baseInput');
+            for (let i = 2; i <= 16; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                
+                let texto = `Base ${i}`;
+                if (i === 2) texto += ' (Binario)';
+                if (i === 8) texto += ' (Octal)';
+                if (i === 10) texto += ' (Decimal)';
+                if (i === 16) texto += ' (Hexadecimal)';
+                
+                option.textContent = texto;
+                
+                // Establecer Decimal (Base 10) como la opción predeterminada
+                if (i === 10) {
+                    option.selected = true;
+                }
+                
+                selector.appendChild(option);
+            }
+        }
+        
+        // Ejecutar la función al cargar el script
+        poblarBases();
+
+        function convertir(baseDestino) {
+            const resultadoDiv = document.getElementById('resultado');
+            const valorEntrada = document.getElementById('numeroInput').value.trim();
+            // Obtener la base seleccionada por el usuario para el número de ENTRADA
+            const baseEntrada = parseInt(document.getElementById('baseInput').value, 10); 
+            
+            resultadoDiv.classList.remove('error');
+
+            if (valorEntrada === '') {
+                resultadoDiv.innerHTML = 'Error: Por favor, ingresa un número.';
+                resultadoDiv.classList.add('error');
+                return;
+            }
+
+            let numeroDecimal;
+            try {
+                // 1. CONVERSIÓN A DECIMAL (Paso Crucial)
+                // Usamos parseInt(string, base) para convertir el valor en la base de entrada a Decimal.
+                numeroDecimal = parseInt(valorEntrada, baseEntrada); 
+
+                // 2. Comprobar si la conversión a Decimal fue exitosa y válida
+                if (isNaN(numeroDecimal)) {
+                    throw new Error("Formato de número inválido para la base " + baseEntrada + ". Verifica los dígitos.");
+                }
+                
+                // 3. Comprobar si el número es negativo
+                if (numeroDecimal < 0) {
+                    throw new Error("Ingresa un número no negativo.");
+                }
+
+                let resultadoConversion = '';
+                let nombreBaseDestino = '';
+                
+                // 4. CONVERSIÓN A LA BASE DE DESTINO
+                // Usamos .toString(base) para convertir el Decimal a la base de destino.
+                switch (baseDestino) {
+                    case 2:
+                        resultadoConversion = numeroDecimal.toString(2);
+                        nombreBaseDestino = 'Binario';
+                        break;
+                    case 8:
+                        resultadoConversion = numeroDecimal.toString(8);
+                        nombreBaseDestino = 'Octal';
+                        break;
+                    case 10:
+                        resultadoConversion = numeroDecimal.toString(10);
+                        nombreBaseDestino = 'Decimal';
+                        break;
+                    case 16:
+                        resultadoConversion = numeroDecimal.toString(16).toUpperCase();
+                        nombreBaseDestino = 'Hexadecimal';
+                        break;
+                    default:
+                         throw new Error("Base de destino no soportada.");
+                }
+                
+                // 5. Mostrar el resultado
+                resultadoDiv.innerHTML = `${nombreBaseDestino} (Base ${baseDestino}): = ${resultadoConversion}`;
+
+            } catch (e) {
+                // Manejo de errores
+                resultadoDiv.innerHTML = `Error: ${e.message}`;
+                resultadoDiv.classList.add('error');
+            }
+        }
+    </script>
+
+</body>
+</html>

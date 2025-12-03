@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Bases Numéricas Fija</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* 🎨 ESTILOS CSS - Minimalista y Fijo */
+        :root {
+            --color-primario: #0077ff; 
+            --color-fondo: #f0f2f5;
+            --color-tarjeta: #ffffff;
+            --color-texto: #333333;
+            --color-sombra: rgba(0, 0, 0, 0.08);
+            --color-exito: #28a745;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--color-fondo);
+            margin: 0;
+            color: var(--color-texto);
+        }
+
+        .calculadora {
+            background-color: var(--color-tarjeta);
+            padding: 40px;
+            border-radius: 20px;
+            /* Se mantiene la sombra inicial para darle profundidad, pero sin el efecto de elevación */
+            box-shadow: 0 10px 30px var(--color-sombra); 
+            width: 380px;
+            text-align: center;
+            transition: none; /* Asegura que no haya ninguna transición residual */
+        }
+        
+        /* ELIMINADO EL EFECTO :hover QUE PROVOCABA EL MOVIMIENTO */
+
+        h2 {
+            color: var(--color-primario);
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+
+        .entrada, .resultado {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            box-sizing: border-box; 
+            font-size: 1em;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        input[type="text"]:focus, select:focus {
+            border-color: var(--color-primario);
+            box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.2);
+            outline: none;
+        }
+
+        .operaciones {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .operaciones button {
+            flex-grow: 1;
+            padding: 12px 10px;
+            border: none;
+            border-radius: 10px;
+            background-color: var(--color-primario);
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .operaciones button:hover {
+            background-color: #0056b3;
+        }
+        
+        .operaciones button:active {
+            transform: scale(0.98);
+        }
+
+        #resultado-final {
+            margin-top: 15px;
+            padding: 20px;
+            border: 2px solid var(--color-exito);
+            background-color: #e6f7eb;
+            color: var(--color-exito);
+            font-size: 1.4em;
+            font-weight: 700;
+            border-radius: 10px;
+            min-height: 20px; 
+            overflow-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculadora">
+        <h2>Calculadora de Bases</h2>
+        
+        <div class="entrada">
+            <label for="base-entrada">Base de los dos números de entrada:</label>
+            <select id="base-entrada"></select>
+        </div>
+
+        <input type="text" id="num1" placeholder="Primer número (Ej: 1010 en Binario)">
+        <input type="text" id="num2" placeholder="Segundo número (Ej: A5 en Hexadecimal)">
+        
+        <div class="operaciones">
+            <button onclick="calcular('+')">Suma</button>
+            <button onclick="calcular('-')">Resta</button>
+            <button onclick="calcular('*')">Mult.</button>
+            <button onclick="calcular('/')">Div. (Entera)</button>
+        </div>
+
+        <div class="resultado">
+            <label for="base-resultado">Expresar el Resultado en Base:</label>
+            <select id="base-resultado"></select>
+            <h3>Resultado:</h3>
+            <div id="resultado-final"></div>
+        </div>
+    </div>
+
+    <script>
+        // 🧠 LÓGICA JAVASCRIPT (Sin cambios)
+        
+        function generarOpcionesDeBase(elementoId, baseSeleccionadaPorDefecto) {
+            const selectElement = document.getElementById(elementoId);
+            for (let i = 2; i <= 16; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                
+                let etiqueta = `Base ${i}`;
+                if (i === 2) etiqueta += ' (Binario)';
+                if (i === 8) etiqueta += ' (Octal)';
+                if (i === 10) etiqueta += ' (Decimal)';
+                if (i === 16) etiqueta += ' (Hexadecimal)';
+
+                option.textContent = etiqueta;
+                if (i === baseSeleccionadaPorDefecto) {
+                    option.selected = true;
+                }
+                selectElement.appendChild(option);
+            }
+        }
+
+        window.onload = function() {
+            generarOpcionesDeBase('base-entrada', 10);
+            generarOpcionesDeBase('base-resultado', 10);
+        };
+
+
+        function calcular(operador) {
+            const num1Str = document.getElementById('num1').value.trim();
+            const num2Str = document.getElementById('num2').value.trim();
+            const baseEntrada = parseInt(document.getElementById('base-entrada').value);
+            const baseResultado = parseInt(document.getElementById('base-resultado').value);
+            const resultadoDiv = document.getElementById('resultado-final');
+            
+            resultadoDiv.textContent = '';
+            
+            if (!num1Str || !num2Str) {
+                resultadoDiv.textContent = "¡Ups! Ingresa ambos números.";
+                return;
+            }
+
+            try {
+                // Conversión a Decimal (Base 10)
+                const num1Dec = parseInt(num1Str.toUpperCase(), baseEntrada);
+                const num2Dec = parseInt(num2Str.toUpperCase(), baseEntrada);
+                
+                if (isNaN(num1Dec) || isNaN(num2Dec)) {
+                    resultadoDiv.textContent = `Error: Números no válidos para la Base ${baseEntrada}.`;
+                    return;
+                }
+
+                let resultadoDec;
+
+                // Realizar la Operación en Base 10
+                switch (operador) {
+                    case '+':
+                        resultadoDec = num1Dec + num2Dec;
+                        break;
+                    case '-':
+                        resultadoDec = num1Dec - num2Dec;
+                        break;
+                    case '*':
+                        resultadoDec = num1Dec * num2Dec;
+                        break;
+                    case '/':
+                        if (num2Dec === 0) {
+                            resultadoDiv.textContent = "Error: División por cero (¡no se puede!).";
+                            return;
+                        }
+                        // Cociente entero.
+                        resultadoDec = Math.floor(num1Dec / num2Dec); 
+                        break;
+                    default:
+                        resultadoDec = 0;
+                }
+
+                // Conversión a la Base de Salida
+                const resultadoFinal = resultadoDec.toString(baseResultado).toUpperCase();
+                
+                resultadoDiv.textContent = resultadoFinal;
+
+            } catch (e) {
+                console.error(e);
+                resultadoDiv.textContent = "Error inesperado.";
+            }
+        }
+    </script>
+</body>
+</html>

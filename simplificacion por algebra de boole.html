@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Simplificador con Pasos</title>
+<link rel="stylesheet" href="estilos.css">
+<script src="script.js"></script>
+</head>
+<body>
+<div class="container">
+    <h2>Simplificador de Expresión con Álgebra Booleana</h2>
+    
+    <div class="info-box">
+        <strong>Instrucciones:</strong> Usa A, B, C, D para variables. ¬ para negación, + para suma (OR), * para producto (AND), () para paréntesis
+    </div>
+
+    <div class="input-group">
+        <label>Ingrese la expresión booleana:</label>
+        <input id="expresion" placeholder="Ej: A¬B+C(D+¬A)" oninput="validarInput(this)" style="font-size: 18px; padding: 16px; min-height: 50px;">
+    </div>
+
+    <div class="button-group">
+        <button class="secondary" onclick="insertarNegacion('expresion')">Insertar Negación ¬</button>
+        <button class="primary" onclick="procesarPagina1()">Simplificar</button>
+        <button class="danger" onclick="limpiarFormulario('expresion', 'resultado', 'tablita')">Limpiar</button>
+    </div>
+
+    <div id="errorMsg"></div>
+
+    <h3>Tabla de Verdad:</h3>
+    <div id="tablita"></div>
+
+    <h3>Resultado:</h3>
+    <div id="resultado"></div>
+</div>
+
+<script>
+function procesarPagina1(){
+    const exp = document.getElementById("expresion").value.trim();
+    const errorDiv = document.getElementById("errorMsg");
+    errorDiv.innerHTML = "";
+    
+    if(!exp) {
+        errorDiv.innerHTML = '<div class="error">❌ Por favor ingrese una expresión</div>';
+        return;
+    }
+
+    if(!validarExpresion(exp)) {
+        errorDiv.innerHTML = '<div class="error">❌ Expresión no válida. Revise paréntesis y operadores</div>';
+        return;
+    }
+
+    try {
+        const vars = detectarVars(exp);
+        if(vars.length === 0) {
+            errorDiv.innerHTML = '<div class="error">❌ Debe incluir al menos una variable (A, B, C, D)</div>';
+            return;
+        }
+
+        const resultados = evaluarExpresion(exp, vars);
+        
+        // Mostrar tabla de verdad
+        document.getElementById("tablita").innerHTML = generarTablaVerdad(exp, vars);
+        
+        // Detectar si es tautología o contradicción
+        const todoUno = resultados.every(r => r === 1);
+        const todoCero = resultados.every(r => r === 0);
+        
+        let resultadoHTML = '';
+        
+        if(todoUno) {
+            resultadoHTML = `
+                <div class="success" style="font-size: 18px; padding: 20px;">
+                    <strong>⭐ TAUTOLOGÍA</strong><br>
+                    La expresión siempre es verdadera (1) independientemente de los valores de las variables.
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Expresión simplificada:</span>
+                    <span class="result-value">1</span>
+                </div>
+            `;
+        } else if(todoCero) {
+            resultadoHTML = `
+                <div class="error" style="font-size: 18px; padding: 20px;">
+                    <strong>⊥ CONTRADICCIÓN (Negación)</strong><br>
+                    La expresión siempre es falsa (0) independientemente de los valores de las variables.
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Expresión simplificada:</span>
+                    <span class="result-value">0</span>
+                </div>
+            `;
+        } else {
+            const simp = simplificarQM(resultados, vars);
+            resultadoHTML = `
+                <div class="result-row">
+                    <span class="result-label">Expresión simplificada:</span>
+                    <span class="result-value">${simp}</span>
+                </div>
+               
+            `;
+        }
+        
+        document.getElementById("resultado").innerHTML = resultadoHTML;
+
+    } catch(e) {
+        errorDiv.innerHTML = '<div class="error">❌ Error al procesar la expresión: ' + e.message + '</div>';
+    }
+}
+</script>
+</body>
+</html>
+

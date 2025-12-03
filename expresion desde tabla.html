@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Expresión desde Tabla de Verdad</title>
+<link rel="stylesheet" href="estilos.css">
+<script src="script.js"></script>
+</head>
+<body>
+<div class="container">
+    <h2>Expresión desde Tabla de Verdad</h2>
+    
+    <div class="info-box">
+        <strong>Instrucciones:</strong> Selecciona el número de variables y completa la tabla marcando 1 o 0 para cada fila
+    </div>
+
+    <div class="input-group">
+        <label>Número de Variables:
+            <select id="numVars" onchange="generarTabla()" style="font-size: 18px; padding: 16px; min-height: 50px;">
+                <option value="2">2 variables</option>
+                <option value="3">3 variables</option>
+                <option value="4">4 variables</option>
+            </select>
+        </label>
+    </div>
+
+    <div id="tablaDiv"></div>
+
+    <div class="button-group">
+        <button class="primary" onclick="procesarTabla()">Procesar</button>
+        <button class="danger" onclick="limpiarTabla()">Limpiar Tabla</button>
+    </div>
+
+    <h3>Resultado:</h3>
+    <div id="resultado"></div>
+</div>
+
+<script>
+function generarTabla(){
+    const n=parseInt(document.getElementById("numVars").value);
+    const vars=["A","B","C","D"].slice(0,n);
+    const combos=combinaciones(n);
+    let html="<table><tr>";
+    vars.forEach(v=>html+="<th>"+v+"</th>");
+    html+="<th>Resultado F</th></tr>";
+    combos.forEach((bits,i)=>{
+        html+="<tr>"+bits.map(b=>"<td>"+b+"</td>").join("");
+        html+="<td><input type='number' min='0' max='1' id='f"+i+"' value='0'></td></tr>";
+    });
+    html+="</table>";
+    document.getElementById("tablaDiv").innerHTML=html;
+    document.getElementById("resultado").innerHTML="";
+}
+generarTabla();
+
+function procesarTabla(){
+    const n=parseInt(document.getElementById("numVars").value);
+    const vars=["A","B","C","D"].slice(0,n);
+    const combos=combinaciones(n);
+    const resultados = combos.map((bits,i)=>parseInt(document.getElementById("f"+i).value)||0);
+    const minExp = obtenerMinterms(resultados, vars);
+    const maxExp = obtenerMaxterms(resultados, vars);
+    const simp = simplificarQM(resultados, vars);
+    document.getElementById("resultado").innerHTML=`
+        <div class="result-row">
+            <span class="result-label">SOP (Suma de Productos):</span>
+            <span class="result-value">${minExp}</span>
+        </div>
+        <div class="result-row">
+            <span class="result-label">POS (Producto de Sumas):</span>
+            <span class="result-value">${maxExp}</span>
+        </div>
+        <div class="result-row">
+            <span class="result-label">Expresión Simplificada:</span>
+            <span class="result-value">${simp}</span>
+        </div>
+    `;
+}
+
+function limpiarTabla(){
+    const n=parseInt(document.getElementById("numVars").value);
+    for(let i=0; i<(1<<n); i++){
+        document.getElementById("f"+i).value="0";
+    }
+    document.getElementById("resultado").innerHTML="";
+}
+</script>
+</body>
+</html>

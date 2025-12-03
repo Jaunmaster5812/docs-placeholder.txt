@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Minterms y Maxterms</title>
+<link rel="stylesheet" href="estilos.css">
+<script src="script.js"></script>
+</head>
+<body>
+<div class="container">
+    <h2>Minterms y Maxterms</h2>
+    
+    <div class="info-box">
+        <strong>Instrucciones:</strong> Ingresa una expresión para obtener sus minterms y maxterms. Los minterms son los términos donde la función vale 1, los maxterms donde vale 0.
+    </div>
+
+    <div class="input-group">
+        <label>Ingrese la expresión booleana:</label>
+        <input id="expresion" placeholder="Ej: A¬B+C(D+¬A)" oninput="validarInput(this)" style="font-size: 18px; padding: 16px; min-height: 50px;">
+    </div>
+
+    <div class="button-group">
+        <button class="secondary" onclick="insertarNegacion('expresion')">Insertar ¬</button>
+        <button class="primary" onclick="procesarPagina3()">Procesar</button>
+        <button class="danger" onclick="limpiarFormulario('expresion', 'minmax')">Limpiar</button>
+    </div>
+
+    <div id="errorMsg"></div>
+
+    <h3>Tabla de Verdad:</h3>
+    <div id="tablita"></div>
+
+    <h3>Minterms y Maxterms:</h3>
+    <div id="minmax"></div>
+</div>
+
+<script>
+function procesarPagina3(){
+    const exp = document.getElementById("expresion").value.trim();
+    const errorDiv = document.getElementById("errorMsg");
+    
+    // Limpiar error previo
+    if(errorDiv) errorDiv.innerHTML = "";
+    
+    // Validaciones
+    if(!exp) {
+        if(errorDiv) errorDiv.innerHTML = '<div class="error">❌ Por favor ingrese una expresión</div>';
+        return;
+    }
+
+    if(!validarExpresion(exp)) {
+        if(errorDiv) errorDiv.innerHTML = '<div class="error">❌ Expresión no válida. Revise paréntesis y operadores</div>';
+        return;
+    }
+
+    try {
+        const vars = detectarVars(exp);
+        if(vars.length === 0) {
+            if(errorDiv) errorDiv.innerHTML = '<div class="error">❌ Debe incluir al menos una variable (A, B, C, D)</div>';
+            return;
+        }
+
+        // Evaluar la expresión
+        const resultados = evaluarExpresion(exp, vars);
+        
+        // Obtener minterms y maxterms
+        const minterms = obtenerMintermsList(resultados, vars);
+        const maxterms = obtenerMaxtermsList(resultados, vars);
+        
+        // Generar tabla de verdad
+        try {
+            const tablaHTML = generarTablaVerdad(exp, vars);
+            const tablaDiv = document.getElementById("tablita");
+            if(tablaDiv) {
+                tablaDiv.innerHTML = tablaHTML;
+            }
+        } catch(e) {
+            console.error("Error generando tabla:", e);
+        }
+        
+        // Mostrar minterms y maxterms
+        let html = '<div class="result-box">';
+        html += '<h3>Minterms (donde F=1):</h3>';
+        if(minterms.length === 0) {
+            html += '<div class="result-row"><span class="result-value" style="width:100%;">∅ (No hay minterms - Función siempre 0)</span></div>';
+        } else {
+            html += '<div class="result-row"><span class="result-value" style="width:100%;">' + minterms.join(', ') + '</span></div>';
+        }
+        html += '<h3>Maxterms (donde F=0):</h3>';
+        if(maxterms.length === 0) {
+            html += '<div class="result-row"><span class="result-value" style="width:100%;">∅ (No hay maxterms - Función siempre 1)</span></div>';
+        } else {
+            html += '<div class="result-row"><span class="result-value" style="width:100%;">' + maxterms.join(', ') + '</span></div>';
+        }
+        html += '</div>';
+        
+        const minmaxDiv = document.getElementById("minmax");
+        if(minmaxDiv) {
+            minmaxDiv.innerHTML = html;
+        }
+        
+    } catch(e) {
+        console.error("Error:", e);
+        if(errorDiv) {
+            errorDiv.innerHTML = '<div class="error">❌ Error al procesar la expresión: ' + e.message + '</div>';
+        }
+    }
+}
+</script>
+</body>
+</html>
