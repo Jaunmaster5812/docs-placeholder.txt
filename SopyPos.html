@@ -30,8 +30,13 @@
     <h3>Tabla de Verdad:</h3>
     <div id="tablita"></div>
 
-    <h3>Formas Canónicas:</h3>
-    <div id="resultado"></div>
+    <h3>Forma Canónica SOP (Suma de Productos)</h3>
+    <div id="resultadoSOP" class="resultado"></div>
+    <div id="notacionSOP" class="notacion-matematica"></div>
+
+    <h3>Forma Canónica POS (Producto de Sumas)</h3>
+    <div id="resultadoPOS" class="resultado"></div>
+    <div id="notacionPOS" class="notacion-matematica"></div>
 </div>
 
 <script>
@@ -60,18 +65,35 @@ function procesarPagina4(){
         const resultados=evaluarExpresion(exp, vars);
         const minExp=obtenerMinterms(resultados, vars);
         const maxExp=obtenerMaxterms(resultados, vars);
+        const sumatoria=generarSumatoria(resultados, vars);
+        const productoria=generarProductoria(resultados, vars);
         
         // Mostrar tabla de verdad
         document.getElementById("tablita").innerHTML = generarTablaVerdad(exp, vars);
         
-        document.getElementById("resultado").innerHTML=`
+        document.getElementById("resultadoSOP").innerHTML=`
             <div class="result-row">
-                <span class="result-label">SOP (Suma de Productos) Canónica:</span>
+                <span class="result-label">SOP Canónica:</span>
                 <span class="result-value">${minExp}</span>
             </div>
+        `;
+        
+        document.getElementById("notacionSOP").innerHTML=`
+            <div class="result-row" style="background-color: #e8f5e9; border-left: 4px solid #4caf50;">
+                <span class="result-value" style="font-size: 16px; color: #2e7d32;">${sumatoria}</span>
+            </div>
+        `;
+        
+        document.getElementById("resultadoPOS").innerHTML=`
             <div class="result-row">
-                <span class="result-label">POS (Producto de Sumas) Canónica:</span>
+                <span class="result-label">POS Canónica:</span>
                 <span class="result-value">${maxExp}</span>
+            </div>
+        `;
+        
+        document.getElementById("notacionPOS").innerHTML=`
+            <div class="result-row" style="background-color: #e3f2fd; border-left: 4px solid #1976d2;">
+                <span class="result-value" style="font-size: 16px; color: #0d47a1;">${productoria}</span>
             </div>
         `;
     } catch(e) {

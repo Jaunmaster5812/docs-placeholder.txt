@@ -349,13 +349,13 @@ function generarTablaVerdad(exp, vars) {
 // ======================================
 function bitsToLiteral(bits, vars){
     let s="";
-    for(let i=0;i<bits.length;i++) s += bits[i]===1? vars[i]: vars[i]+"\u0305";
+    for(let i=0;i<bits.length;i++) s += bits[i]===1? vars[i]: vars[i]+"'";
     return s;
 }
 
 function bitsToMaxterm(bits, vars){
     let parts=[];
-    for(let i=0;i<bits.length;i++) parts.push(bits[i]===0? vars[i]: vars[i]+"\u0305");
+    for(let i=0;i<bits.length;i++) parts.push(bits[i]===0? vars[i]: vars[i]+"'");
     return "("+parts.join("+")+")";
 }
 
@@ -453,4 +453,39 @@ function simplificarQM(resultados,vars){
     resultados.forEach((f,i)=>{if(f===1) minterms.push(i);});
     const primes=quineMcCluskey(minterms,vars.length);
     return primes.map(p=>implicanteToLiteral(p,vars)).join("+")||"0";
+}
+
+// ======================================
+// NOTACIÓN CON SUMATORIA Y PRODUCTORIA
+// ======================================
+function generarSumatoria(resultados, vars) {
+    const indices = [];
+    resultados.forEach((f, i) => {
+        if (f === 1) indices.push(i);
+    });
+    
+    if (indices.length === 0) return "∑ ∅ (función siempre 0)";
+    if (indices.length === Math.pow(2, vars.length)) return "∑ (todos) = 1";
+    
+    // Mostrar los índices en notación decimal
+    const indicesStr = indices.map(i => `m<sub>${i}</sub>`).join(", ");
+    const expresion = obtenerMinterms(resultados, vars);
+    
+    return `∑(${indicesStr}) = ${expresion}`;
+}
+
+function generarProductoria(resultados, vars) {
+    const indices = [];
+    resultados.forEach((f, i) => {
+        if (f === 0) indices.push(i);
+    });
+    
+    if (indices.length === 0) return "∏ ∅ (función siempre 1)";
+    if (indices.length === Math.pow(2, vars.length)) return "∏ (todos) = 0";
+    
+    // Mostrar los índices en notación decimal
+    const indicesStr = indices.map(i => `M<sub>${i}</sub>`).join(", ");
+    const expresion = obtenerMaxterms(resultados, vars);
+    
+    return `∏(${indicesStr}) = ${expresion}`;
 }
